@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.9",
+    "@xyflow/react": "^12.6.4",
     "framer-motion": "^12.15.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
