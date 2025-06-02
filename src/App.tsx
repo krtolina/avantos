@@ -1,5 +1,11 @@
+import { HeroUIProvider } from '@heroui/react'
+
 function App() {
-  return <>App</>
+  return (
+    <HeroUIProvider>
+      <div>App</div>
+    </HeroUIProvider>
+  )
 }
 
 export default App
