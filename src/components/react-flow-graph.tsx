@@ -7,18 +7,18 @@ import {
   Accordion,
   AccordionItem,
   Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
 } from '@heroui/react'
 import type { BlueprintForm, BlueprintFormField, BlueprintNode } from '../types/blueprint-graph'
 import { Database } from 'lucide-react'
 
 const ReactFlowGraph = () => {
   const [selectedNode, setSelectedNode] = useState<BlueprintNode>()
-  const [selectedField, setSelectedField] = useState<BlueprintFormField>()
+  const [selectedField, setSelectedField] = useState<{ key: string; value: BlueprintFormField }>()
 
   const { data, isLoading } = useReadBlueprintGraph({
     tenantId: 'MOCK',
@@ -64,8 +64,8 @@ const ReactFlowGraph = () => {
     setSelectedField(undefined)
   }, [])
 
-  const handleFieldSelect = useCallback((field: BlueprintFormField) => {
-    setSelectedField(field)
+  const handleFieldSelect = useCallback((key: string, value: BlueprintFormField) => {
+    setSelectedField({ key, value })
   }, [])
 
   if (isLoading) return <Loader />
@@ -81,15 +81,26 @@ const ReactFlowGraph = () => {
       >
         <Background />
       </ReactFlow>
-      <Modal isOpen={Boolean(selectedNode)} onClose={handleCloseModal} size="xl" scrollBehavior="inside">
+      <Drawer isOpen={Boolean(selectedNode)} onClose={handleCloseModal} scrollBehavior="inside" size="lg">
         {selectedNode && formMap && data ? (
-          <ModalContent className="py-3">
+          <DrawerContent>
             <>
-              <ModalHeader className="flex flex-col gap-1">
+              <DrawerHeader className="flex flex-col gap-1">
                 <p>Prefill</p>
-                <p className="text-sm font-normal text-gray-500">Prefill fields for {selectedNode.data.name}</p>
-              </ModalHeader>
-              <ModalBody>
+                <p className="text-sm font-normal text-gray-500">
+                  {selectedField ? (
+                    <>
+                      Select mapping for <strong>{selectedField.key}</strong> in{' '}
+                      <strong>{selectedNode.data.name}</strong>
+                    </>
+                  ) : (
+                    <>
+                      Prefill fields for <strong>{selectedNode.data.name}</strong>
+                    </>
+                  )}
+                </p>
+              </DrawerHeader>
+              <DrawerBody>
                 {selectedField ? (
                   <Accordion selectionMode="multiple">
                     {Object.values(nodeMap).map((node) => (
@@ -97,14 +108,14 @@ const ReactFlowGraph = () => {
                         <ul>
                           {Object.entries(formMap[node.data.component_id].field_schema.properties).map(
                             ([key, field]) => (
-                              <li key={key} className="flex items-center justify-between py-2">
+                              <li key={key} className="flex items-center justify-between py-1">
                                 <Button
                                   variant="flat"
                                   className="flex items-center gap-2 w-full justify-start"
                                   startContent={<Database className="h-5 w-5 text-gray-500" />}
-                                  onPress={() => handleFieldSelect(field)}
+                                  onPress={() => handleFieldSelect(key, field)}
                                 >
-                                  <span className="text-sm font-medium">{key}</span>
+                                  {key}
                                 </Button>
                               </li>
                             )
@@ -117,22 +128,22 @@ const ReactFlowGraph = () => {
                   <ul>
                     {Object.entries(formMap[selectedNode.data.component_id].field_schema.properties).map(
                       ([key, field]) => (
-                        <li key={key} className="flex items-center justify-between py-2">
+                        <li key={key} className="flex items-center justify-between py-1">
                           <Button
                             variant="flat"
                             className="flex items-center gap-2 w-full justify-start"
                             startContent={<Database className="h-5 w-5 text-gray-500" />}
-                            onPress={() => handleFieldSelect(field)}
+                            onPress={() => handleFieldSelect(key, field)}
                           >
-                            <span className="text-sm font-medium">{key}</span>
+                            {key}
                           </Button>
                         </li>
                       )
                     )}
                   </ul>
                 )}
-              </ModalBody>
-              <ModalFooter>
+              </DrawerBody>
+              <DrawerFooter>
                 {selectedField ? (
                   <Button color="danger" variant="flat" key="back" onPress={handleRemoveFieldSelection}>
                     Back
@@ -147,11 +158,11 @@ const ReactFlowGraph = () => {
                     Select
                   </Button>
                 ) : null}
-              </ModalFooter>
+              </DrawerFooter>
             </>
-          </ModalContent>
+          </DrawerContent>
         ) : null}
-      </Modal>
+      </Drawer>
     </>
   )
 }
