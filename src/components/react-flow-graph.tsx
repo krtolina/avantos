@@ -3,8 +3,17 @@ import { useReadBlueprintGraph } from '../api/blueprint-graph'
 import { getCanvasEdgesFromBlueprintGraph, getCanvasNodesFromBlueprintGraph } from '../utils/mapper'
 import { useCallback, useMemo, useState } from 'react'
 import Loader from './loader'
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/react'
-import type { BlueprintFormField, BlueprintNode } from '../types/blueprint-graph'
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from '@heroui/react'
+import type { BlueprintForm, BlueprintFormField, BlueprintNode } from '../types/blueprint-graph'
 import { Database } from 'lucide-react'
 
 const ReactFlowGraph = () => {
@@ -29,10 +38,15 @@ const ReactFlowGraph = () => {
     return map
   }, [data])
 
-  const form = useMemo(() => {
-    if (!data || !selectedNode) return undefined
-    return data.forms.find((form) => form.id === selectedNode.data.component_id)
-  }, [data, selectedNode])
+  const formMap = useMemo(() => {
+    const map: Record<string, BlueprintForm> = {}
+    if (data) {
+      data.forms.forEach((form) => {
+        map[form.id] = form
+      })
+    }
+    return map
+  }, [data])
 
   const handleOpenModal = useCallback(
     (id: string) => {
@@ -68,7 +82,7 @@ const ReactFlowGraph = () => {
         <Background />
       </ReactFlow>
       <Modal isOpen={Boolean(selectedNode)} onClose={handleCloseModal} size="xl" scrollBehavior="inside">
-        {selectedNode && form ? (
+        {selectedNode && formMap && data ? (
           <ModalContent className="py-3">
             <>
               <ModalHeader className="flex flex-col gap-1">
@@ -77,21 +91,44 @@ const ReactFlowGraph = () => {
               </ModalHeader>
               <ModalBody>
                 {selectedField ? (
-                  <div></div>
+                  <Accordion selectionMode="multiple">
+                    {Object.values(nodeMap).map((node) => (
+                      <AccordionItem key={node.id} title={node.data.name}>
+                        <ul>
+                          {Object.entries(formMap[node.data.component_id].field_schema.properties).map(
+                            ([key, field]) => (
+                              <li key={key} className="flex items-center justify-between py-2">
+                                <Button
+                                  variant="flat"
+                                  className="flex items-center gap-2 w-full justify-start"
+                                  startContent={<Database className="h-5 w-5 text-gray-500" />}
+                                  onPress={() => handleFieldSelect(field)}
+                                >
+                                  <span className="text-sm font-medium">{key}</span>
+                                </Button>
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 ) : (
                   <ul>
-                    {Object.entries(form.field_schema.properties).map(([key, field]) => (
-                      <li key={key} className="flex items-center justify-between py-2">
-                        <Button
-                          variant="flat"
-                          className="flex items-center gap-2 w-full justify-start"
-                          startContent={<Database className="h-5 w-5 text-gray-500" />}
-                          onPress={() => handleFieldSelect(field)}
-                        >
-                          <span className="text-sm font-medium">{key}</span>
-                        </Button>
-                      </li>
-                    ))}
+                    {Object.entries(formMap[selectedNode.data.component_id].field_schema.properties).map(
+                      ([key, field]) => (
+                        <li key={key} className="flex items-center justify-between py-2">
+                          <Button
+                            variant="flat"
+                            className="flex items-center gap-2 w-full justify-start"
+                            startContent={<Database className="h-5 w-5 text-gray-500" />}
+                            onPress={() => handleFieldSelect(field)}
+                          >
+                            <span className="text-sm font-medium">{key}</span>
+                          </Button>
+                        </li>
+                      )
+                    )}
                   </ul>
                 )}
               </ModalBody>
