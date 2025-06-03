@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { GraphDrawerContext } from '../context/graph-drawer-context'
+import { GraphDrawerContext } from '../contexts/graph-drawer-context'
 
 export const useGraphDrawer = () => {
   const context = useContext(GraphDrawerContext)

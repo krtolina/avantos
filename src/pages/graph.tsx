@@ -1,5 +1,5 @@
 import GraphCanvas from '../components/graph/graph-canvas'
-import { GraphDrawerProvider } from '../context/graph-drawer-context'
+import { GraphDrawerProvider } from '../contexts/graph-drawer-context'
 import GraphLayout from '../layouts/graph-layout'
 
 const Graph = () => {
