@@ -8,7 +8,7 @@ import {
 } from '../utils/graph-utils'
 import { useReadBlueprintGraph } from '../api/blueprint-graph'
 import type { BlueprintNode } from '../types/blueprint-graph'
-import type { DrawerFormField, DrawerFormMapping, GraphDrawerContextType } from '../types/drawer-form'
+import type { DrawerFormField, DrawerFormMapping, GraphDrawerContextType } from '../types/graph-drawer'
 
 type Props = {
   children: React.ReactNode

@@ -1,6 +1,6 @@
 import { Position, type Edge, type Node } from '@xyflow/react'
 import type { BlueprintForm, BlueprintGraph, BlueprintNode } from '../types/blueprint-graph'
-import type { DrawerFormField, DrawerFormMapping } from '../types/drawer-form'
+import type { DrawerFormField, DrawerFormMapping } from '../types/graph-drawer'
 
 export const getMappingKey = ({ nodeId, fieldKey }: DrawerFormField): string => `${fieldKey}-${nodeId}`
 
