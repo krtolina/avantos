@@ -1,10 +1,13 @@
-import ReactFlowGraph from '../components/react-flow-graph'
+import GraphCanvas from '../components/graph/graph-canvas'
+import { GraphDrawerProvider } from '../context/graph-drawer-context'
 import GraphLayout from '../layouts/graph-layout'
 
 const Graph = () => {
   return (
     <GraphLayout>
-      <ReactFlowGraph />
+      <GraphDrawerProvider>
+        <GraphCanvas />
+      </GraphDrawerProvider>
     </GraphLayout>
   )
 }
