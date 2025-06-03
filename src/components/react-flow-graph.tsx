@@ -77,7 +77,7 @@ const ReactFlowGraph = () => {
               </ModalHeader>
               <ModalBody>
                 {selectedField ? (
-                  <div />
+                  <div></div>
                 ) : (
                   <ul>
                     {Object.entries(form.field_schema.properties).map(([key, field]) => (
@@ -96,16 +96,18 @@ const ReactFlowGraph = () => {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button
-                  color="danger"
-                  variant="flat"
-                  onPress={selectedField ? handleRemoveFieldSelection : handleCloseModal}
-                >
-                  Cancel
-                </Button>
+                {selectedField ? (
+                  <Button color="danger" variant="flat" key="back" onPress={handleRemoveFieldSelection}>
+                    Back
+                  </Button>
+                ) : (
+                  <Button color="danger" variant="flat" key="cancel" onPress={handleCloseModal}>
+                    Cancel
+                  </Button>
+                )}
                 {selectedField ? (
                   <Button color="primary" onPress={handleCloseModal}>
-                    Save
+                    Select
                   </Button>
                 ) : null}
               </ModalFooter>
