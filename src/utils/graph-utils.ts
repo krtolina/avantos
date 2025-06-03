@@ -2,7 +2,7 @@ import { Position, type Edge, type Node } from '@xyflow/react'
 import type { BlueprintForm, BlueprintGraph, BlueprintNode } from '../types/blueprint-graph'
 import type { DrawerFormField, DrawerFormMapping } from '../types/graph-drawer'
 
-export const getMappingKey = ({ nodeId, fieldKey }: DrawerFormField): string => `${fieldKey}-${nodeId}`
+export const getFieldKey = ({ nodeId, fieldKey }: DrawerFormField): string => `${fieldKey}-${nodeId}`
 
 export const getCanvasNodesFromBlueprintGraph = (graph: BlueprintGraph): Node[] => {
   return graph.nodes.map((node) => ({
@@ -41,7 +41,7 @@ export const getFormMap = (graph: BlueprintGraph): Record<string, BlueprintForm>
 export const getMappingMap = (mappings: DrawerFormMapping[]): Record<string, DrawerFormMapping> => {
   const map: Record<string, DrawerFormMapping> = {}
   mappings.forEach((mapping) => {
-    const key = getMappingKey(mapping.field)
+    const key = getFieldKey(mapping.field)
     map[key] = mapping
   })
   return map

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useGraphDrawer } from '../../../hooks/use-graph-drawer'
 import FormItemActive from '../../form/form-item-active'
 import FormItemBasic from '../../form/form-item-basic'
-import { getMappingKey, getMappingMap } from '../../../utils/graph-utils'
+import { getFieldKey, getMappingMap } from '../../../utils/graph-utils'
 
 const GraphDrawerFields = () => {
   const { selectedNode, formMap, nodeMap, mappings, handleFieldSelect, handleRemoveMapping } = useGraphDrawer()
@@ -14,7 +14,7 @@ const GraphDrawerFields = () => {
   return (
     <ul className="flex flex-col gap-2">
       {Object.keys(formMap[selectedNode.data.component_id].field_schema.properties).map((key) => {
-        const mapping = mappingMap[getMappingKey({ nodeId: selectedNode.id, fieldKey: key })]
+        const mapping = mappingMap[getFieldKey({ nodeId: selectedNode.id, fieldKey: key })]
 
         return mapping ? (
           <FormItemActive
