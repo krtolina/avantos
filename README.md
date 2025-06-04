@@ -57,6 +57,8 @@ npm install
 VITE_SERVER_URL=your_api_url_here
 ```
 
+> **Note:** For this demo project, the `.env` configuration is included in the git repository. In a production environment, you should add `.env` files to your `.gitignore` to avoid committing sensitive configuration to version control.
+
 ### Development
 
 Start the development server:
