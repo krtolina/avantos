@@ -1,15 +1,7 @@
 import { createContext, useState, useMemo, useCallback } from 'react'
-import {
-  getNodeMap,
-  getFormMap,
-  getPredecessorsMap,
-  getCanvasNodesFromBlueprintGraph,
-  getCanvasEdgesFromBlueprintGraph,
-  getGlobalGroupMap,
-} from '../utils/graph-utils'
-import { useReadBlueprintGraph, useReadGlobalGroups } from '../api/blueprint-graph'
-import type { BlueprintNode } from '../types/blueprint-graph'
-import type { DrawerFormField, DrawerFormMapping, GraphDrawerContextType } from '../types/graph-drawer'
+import { getCanvasNodes, getCanvasEdges, getNodeMap } from '../utils/graph-utils'
+import { useReadGraphNodes, useReadGlobalNodes, useReadGraphEdges } from '../api/blueprint-graph'
+import type { DrawerFormField, DrawerFormMapping, GraphNode, GraphDrawerContextType } from '../types/graph-drawer'
 
 type Props = {
   children: React.ReactNode
@@ -17,41 +9,37 @@ type Props = {
 
 const GraphDrawerContext = createContext<GraphDrawerContextType | null>(null)
 
+const MOCK_PARAMS = {
+  tenantId: 'MOCK',
+  actionBlueprintId: 'MOCK',
+}
+
 const GraphDrawerProvider = ({ children }: Props) => {
-  const { data: graph, isLoading: isLoadingGraph } = useReadBlueprintGraph({
-    tenantId: 'MOCK',
-    actionBlueprintId: 'MOCK',
-  })
+  const { data: nodes, isLoading: isLoadingNodes } = useReadGraphNodes(MOCK_PARAMS)
 
-  const { data: globalGroups, isLoading: isLoadingGlobalGroups } = useReadGlobalGroups()
+  const { data: edges, isLoading: isLoadingEdges } = useReadGraphEdges(MOCK_PARAMS)
 
-  const canvas = useMemo(() => {
-    if (!graph) return
-    const canvasNodes = getCanvasNodesFromBlueprintGraph(graph)
-    const canvasEdges = getCanvasEdgesFromBlueprintGraph(graph)
-    return { canvasNodes, canvasEdges }
-  }, [graph])
+  const { data: globalNodes, isLoading: isLoadingGlobalNodes } = useReadGlobalNodes()
 
-  const [selectedNode, setSelectedNode] = useState<BlueprintNode>()
+  const [selectedNode, setSelectedNode] = useState<GraphNode>()
   const [selectedField, setSelectedField] = useState<DrawerFormField>()
   const [selectedMapping, setSelectedMapping] = useState<DrawerFormField>()
   const [mappings, setMappings] = useState<DrawerFormMapping[]>([])
 
-  const utilityMaps = useMemo(() => {
-    if (!graph || !globalGroups) return undefined
-    const nodeMap = getNodeMap(graph)
-    const formMap = getFormMap(graph)
-    const predecessorsMap = getPredecessorsMap(graph)
-    const globalGroupMap = getGlobalGroupMap(globalGroups)
-    return { nodeMap, formMap, predecessorsMap, globalGroupMap }
-  }, [graph, globalGroups])
+  const data = useMemo(() => {
+    if (!nodes || !edges || !globalNodes) return undefined
+    const nodeMap = getNodeMap([...nodes, ...globalNodes])
+    const canvasNodes = getCanvasNodes(Object.values(nodeMap))
+    const canvasEdges = getCanvasEdges(edges)
+    return { nodeMap, canvasNodes, canvasEdges }
+  }, [nodes, edges, globalNodes])
 
   const handleOpenDrawer = useCallback(
     (id: string) => {
-      if (!utilityMaps) return
-      setSelectedNode(utilityMaps.nodeMap[id])
+      if (!data) return
+      setSelectedNode(data.nodeMap[id])
     },
-    [utilityMaps]
+    [data]
   )
 
   const handleCloseDrawer = useCallback(() => {
@@ -91,7 +79,7 @@ const GraphDrawerProvider = ({ children }: Props) => {
   return (
     <GraphDrawerContext.Provider
       value={{
-        isLoading: isLoadingGraph || isLoadingGlobalGroups,
+        isLoading: isLoadingNodes || isLoadingEdges || isLoadingGlobalNodes,
         selectedNode,
         setSelectedNode,
         selectedField,
@@ -100,13 +88,9 @@ const GraphDrawerProvider = ({ children }: Props) => {
         setSelectedMapping,
         mappings,
         setMappings,
-        globalGroups,
-        nodeMap: utilityMaps ? utilityMaps.nodeMap : undefined,
-        formMap: utilityMaps ? utilityMaps.formMap : undefined,
-        predecessorsMap: utilityMaps ? utilityMaps.predecessorsMap : undefined,
-        globalGroupMap: utilityMaps ? utilityMaps.globalGroupMap : undefined,
-        canvasNodes: canvas ? canvas.canvasNodes : undefined,
-        canvasEdges: canvas ? canvas.canvasEdges : undefined,
+        nodeMap: data ? data.nodeMap : undefined,
+        canvasNodes: data ? data.canvasNodes : undefined,
+        canvasEdges: data ? data.canvasEdges : undefined,
         handleOpenDrawer,
         handleCloseDrawer,
         handleFieldSelect,

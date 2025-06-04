@@ -16,7 +16,7 @@ export type BlueprintGraph = {
 export type BlueprintNode = {
   id: string
   type: string
-  position: BlueprintNodePosition
+  position: NodePosition
   data: BlueprintNodeData
 }
 
@@ -34,7 +34,7 @@ export type BlueprintNodeData = {
   approval_roles: string[]
 }
 
-export type BlueprintNodePosition = {
+export type NodePosition = {
   x: number
   y: number
 }

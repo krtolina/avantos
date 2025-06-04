@@ -1,42 +1,17 @@
 import { Position, type Edge, type Node } from '@xyflow/react'
-import type { BlueprintForm, BlueprintGraph, BlueprintNode } from '../types/blueprint-graph'
+import type { BlueprintEdge, BlueprintForm, BlueprintGraph, BlueprintNode } from '../types/blueprint-graph'
 import type {
   DrawerFormField,
   DrawerFormMapping,
   GetActiveFieldLabelProps,
-  GetCommonTargetProps,
-  GetDagTargetProps,
-  GetGlobalTargetProps,
-  GlobalGroup,
+  GraphNode,
+  MappingMap,
+  NodeMap,
 } from '../types/graph-drawer'
 
-export const getFieldKeyFromField = ({ nodeId, fieldKey }: DrawerFormField): string => `${fieldKey}-${nodeId}`
+// -----------------------------------------------------------
 
-export const getActiveFieldLabel = ({ mapping, nodeMap, globalGroupMap }: GetActiveFieldLabelProps): string => {
-  const targetId = mapping.target.nodeId
-  const nodeLabel = nodeMap[targetId] ? nodeMap[targetId].data.name : globalGroupMap[targetId].title
-  return `${mapping.field.fieldKey}: ${nodeLabel}.${mapping.target.fieldKey}`
-}
-
-export const getCanvasNodesFromBlueprintGraph = (graph: BlueprintGraph): Node[] => {
-  return graph.nodes.map((node) => ({
-    id: node.id,
-    position: node.position,
-    data: { label: node.data.name },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-  }))
-}
-
-export const getCanvasEdgesFromBlueprintGraph = (graph: BlueprintGraph): Edge[] => {
-  return graph.edges.map((edge) => ({
-    id: `${edge.source}-${edge.target}`,
-    source: edge.source,
-    target: edge.target,
-  }))
-}
-
-export const getNodeMap = (graph: BlueprintGraph): Record<string, BlueprintNode> => {
+const getRawNodeMap = (graph: BlueprintGraph): Record<string, BlueprintNode> => {
   const map: Record<string, BlueprintNode> = {}
   graph.nodes.forEach((node) => {
     map[node.id] = node
@@ -44,7 +19,7 @@ export const getNodeMap = (graph: BlueprintGraph): Record<string, BlueprintNode>
   return map
 }
 
-export const getFormMap = (graph: BlueprintGraph): Record<string, BlueprintForm> => {
+const getRawFormMap = (graph: BlueprintGraph): Record<string, BlueprintForm> => {
   const map: Record<string, BlueprintForm> = {}
   graph.forms.forEach((form) => {
     map[form.id] = form
@@ -52,19 +27,8 @@ export const getFormMap = (graph: BlueprintGraph): Record<string, BlueprintForm>
   return map
 }
 
-export const getMappingMap = (mappings: DrawerFormMapping[]): Record<string, DrawerFormMapping> => {
-  const map: Record<string, DrawerFormMapping> = {}
-  mappings.forEach((mapping) => {
-    const key = getFieldKeyFromField(mapping.field)
-    map[key] = mapping
-  })
-  return map
-}
-
-export const getPredecessorsMap = (graph: BlueprintGraph): Record<string, BlueprintNode[]> => {
+const getRawPredecessorMap = (graph: BlueprintGraph): Record<string, string[]> => {
   if (!graph) return {}
-
-  const nodeMap = getNodeMap(graph)
 
   const incoming: Record<string, string[]> = {}
 
@@ -73,7 +37,7 @@ export const getPredecessorsMap = (graph: BlueprintGraph): Record<string, Bluepr
     incoming[target].push(source)
   })
 
-  const map: Record<string, BlueprintNode[]> = {}
+  const map: Record<string, string[]> = {}
 
   graph.nodes.forEach((node) => {
     const visited = new Set<string>()
@@ -89,45 +53,67 @@ export const getPredecessorsMap = (graph: BlueprintGraph): Record<string, Bluepr
       }
     }
 
-    map[node.id] = result.map((id) => nodeMap[id])
+    map[node.id] = result
   })
 
   return map
 }
 
-export const getGlobalGroupMap = (group: GlobalGroup[]): Record<string, GlobalGroup> => {
-  const map: Record<string, GlobalGroup> = {}
-  group.forEach((group) => {
-    map[group.id] = group
+export const selectGraphNodes = (data: BlueprintGraph): GraphNode[] => {
+  const formMap = getRawFormMap(data)
+  const nodeMap = getRawNodeMap(data)
+  const predecessorMap = getRawPredecessorMap(data)
+
+  return data.nodes.map((node) => ({
+    id: node.id,
+    title: node.data.name,
+    fields: Object.keys(formMap[nodeMap[node.id].data.component_id].field_schema.properties),
+    position: node.position,
+    isGlobal: false,
+    predecessorIds: predecessorMap[node.id],
+  }))
+}
+
+// -----------------------------------------------------------
+
+export const getFieldKeyFromField = ({ nodeId, fieldKey }: DrawerFormField): string => `${fieldKey}-${nodeId}`
+
+export const getActiveFieldLabel = ({ mapping, nodeMap }: GetActiveFieldLabelProps): string =>
+  `${mapping.field.fieldKey}: ${nodeMap[mapping.target.nodeId].title}.${mapping.target.fieldKey}`
+
+export const getCanvasNodes = (nodes: GraphNode[]): Node[] => {
+  return nodes
+    .filter((node) => Boolean(node.position))
+    .map((node) => ({
+      id: node.id,
+      position: node.position!,
+      data: { label: node.title },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    }))
+}
+
+export const getCanvasEdges = (edges: BlueprintEdge[]): Edge[] => {
+  return edges.map((edge) => ({
+    id: `${edge.source}-${edge.target}`,
+    source: edge.source,
+    target: edge.target,
+  }))
+}
+
+export const getNodeMap = (node: GraphNode[]): NodeMap => {
+  const map: NodeMap = {}
+  node.forEach((node) => {
+    map[node.id] = node
   })
   return map
 }
 
-const getCommonTargetProps = ({ handleMappingSelect, selectedMapping }: GetCommonTargetProps) => ({
-  isTargetSelected: (groupId: string, targetKey: string) =>
-    Boolean(selectedMapping && selectedMapping.fieldKey === targetKey && selectedMapping.nodeId === groupId),
-  onTargetSelect: (groupId: string, targetKey: string) => handleMappingSelect({ nodeId: groupId, fieldKey: targetKey }),
-})
-
-export function getDagTargetProps(props: GetDagTargetProps) {
-  const { selectedNode, predecessorsMap, formMap, selectedMapping, nodeMap, handleMappingSelect } = props
-  return {
-    ...getCommonTargetProps({ handleMappingSelect, selectedMapping }),
-    groupIds: predecessorsMap[selectedNode.id].map((node) => node.id),
-    getGroupTitle: (groupId: string) => nodeMap[groupId].data.name,
-    getTargetKeys: (groupId: string) =>
-      Object.keys(formMap[nodeMap[groupId].data.component_id].field_schema.properties),
-    getTargetLabel: (_: string, targetKey: string) => targetKey,
-  }
-}
-
-export function getGlobalTargetProps(props: GetGlobalTargetProps) {
-  const { globalGroups, globalGroupMap, selectedMapping, handleMappingSelect } = props
-  return {
-    ...getCommonTargetProps({ handleMappingSelect, selectedMapping }),
-    groupIds: globalGroups.map((group) => group.id),
-    getGroupTitle: (groupId: string) => globalGroupMap[groupId].title,
-    getTargetKeys: (groupId: string) => globalGroupMap[groupId].targets,
-    getTargetLabel: (_: string, targetKey: string) => targetKey,
-  }
+export const getMappingMap = (mappings: DrawerFormMapping[]): MappingMap => {
+  const map: MappingMap = {}
+  mappings.forEach((mapping) => {
+    const key = getFieldKeyFromField(mapping.field)
+    map[key] = mapping
+  })
+  return map
 }

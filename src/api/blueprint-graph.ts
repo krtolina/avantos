@@ -1,30 +1,48 @@
 import { useQuery } from '@tanstack/react-query'
 import { axiosInstance } from '../utils/axios'
 import type { BlueprintGraph } from '../types/blueprint-graph'
-import type { GlobalGroup } from '../types/graph-drawer'
+import type { GraphNode } from '../types/graph-drawer'
+import { selectGraphNodes } from '../utils/graph-utils'
 
-type UseReadBlueprintGraphParams = {
+export type UseReadGraphNodesParams = {
   tenantId: string
   actionBlueprintId: string
 }
 
-export const useReadBlueprintGraph = (params: UseReadBlueprintGraphParams) => {
+export type UseReadGraphEdgesParams = {
+  tenantId: string
+  actionBlueprintId: string
+}
+
+export const useReadGraphNodes = (params: UseReadGraphNodesParams) => {
   const { tenantId, actionBlueprintId } = params
 
   return useQuery({
     queryFn: (): Promise<BlueprintGraph> =>
       axiosInstance.get(`${tenantId}/actions/blueprints/${actionBlueprintId}/graph`),
-    queryKey: ['blueprint-graph', tenantId, actionBlueprintId],
+    queryKey: ['graph', tenantId, actionBlueprintId],
+    select: selectGraphNodes,
   })
 }
 
-export const useReadGlobalGroups = () => {
+export const useReadGraphEdges = (params: UseReadGraphEdgesParams) => {
+  const { tenantId, actionBlueprintId } = params
+
   return useQuery({
-    queryFn: (): Promise<GlobalGroup[]> =>
+    queryFn: (): Promise<BlueprintGraph> =>
+      axiosInstance.get(`${tenantId}/actions/blueprints/${actionBlueprintId}/graph`),
+    queryKey: ['graph', tenantId, actionBlueprintId],
+    select: (data) => data.edges,
+  })
+}
+
+export const useReadGlobalNodes = () => {
+  return useQuery({
+    queryFn: (): Promise<GraphNode[]> =>
       Promise.resolve([
-        { id: 'group1', title: 'Group 1', targets: ['email', 'name'] },
-        { id: 'group2', title: 'Group 2', targets: ['role', 'access'] },
+        { id: 'node1', title: 'Global Node 1', fields: ['email', 'name'], isGlobal: true },
+        { id: 'node2', title: 'Global Node 2', fields: ['role', 'access'], isGlobal: true },
       ]),
-    queryKey: ['global-groups'],
+    queryKey: ['global-nodes'],
   })
 }

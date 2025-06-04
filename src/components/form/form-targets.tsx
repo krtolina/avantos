@@ -3,24 +3,24 @@ import FormItemBasic from './form-item-basic'
 import type { FormTargetProps } from '../../types/graph-drawer'
 
 const FormTargets = ({
-  groupIds,
-  getGroupTitle,
-  getTargetKeys,
-  isTargetSelected,
-  onTargetSelect,
-  getTargetLabel,
+  nodeIds,
+  getNodeTitle,
+  getFieldKeys,
+  isFieldSelected,
+  onFieldSelect,
+  getFieldLabel,
 }: FormTargetProps) => {
   return (
     <Accordion selectionMode="multiple">
-      {groupIds.map((groupId) => (
-        <AccordionItem key={groupId} title={getGroupTitle(groupId)}>
+      {nodeIds.map((nodeId) => (
+        <AccordionItem key={nodeId} title={getNodeTitle(nodeId)}>
           <ul className="flex flex-col gap-2">
-            {getTargetKeys(groupId).map((key) => (
+            {getFieldKeys(nodeId).map((key) => (
               <FormItemBasic
                 key={key}
-                label={getTargetLabel(groupId, key)}
-                isSelected={isTargetSelected(groupId, key)}
-                onClick={() => onTargetSelect(groupId, key)}
+                label={getFieldLabel(nodeId, key)}
+                isSelected={isFieldSelected(nodeId, key)}
+                onClick={() => onFieldSelect(nodeId, key)}
               />
             ))}
           </ul>

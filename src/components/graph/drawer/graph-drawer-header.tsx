@@ -12,11 +12,11 @@ const GraphDrawerHeader = () => {
       <p className="text-sm font-normal text-gray-500">
         {selectedField ? (
           <>
-            Select mapping for <strong>{selectedField.fieldKey}</strong> in <strong>{selectedNode.data.name}</strong>
+            Select mapping for <strong>{selectedField.fieldKey}</strong> in <strong>{selectedNode.title}</strong>
           </>
         ) : (
           <>
-            Prefill fields for <strong>{selectedNode.data.name}</strong>
+            Prefill fields for <strong>{selectedNode.title}</strong>
           </>
         )}
       </p>

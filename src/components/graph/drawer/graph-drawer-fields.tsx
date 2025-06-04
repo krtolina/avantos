@@ -4,22 +4,20 @@ import { getActiveFieldLabel, getFieldKeyFromField, getMappingMap } from '../../
 import FormFields from '../../form/form-fields'
 
 const GraphDrawerFields = () => {
-  const { selectedNode, formMap, nodeMap, mappings, handleFieldSelect, handleRemoveMapping, globalGroupMap } =
-    useGraphDrawer()
+  const { selectedNode, nodeMap, mappings, handleFieldSelect, handleRemoveMapping } = useGraphDrawer()
 
   const mappingMap = useMemo(() => getMappingMap(mappings), [mappings])
 
-  if (!selectedNode || !formMap || !nodeMap || !globalGroupMap) return null
+  if (!selectedNode || !nodeMap) return null
 
   return (
     <FormFields
-      fieldKeys={Object.keys(formMap[selectedNode.data.component_id].field_schema.properties)}
+      fieldKeys={selectedNode.fields}
       isFieldActive={(fieldKey) => Boolean(mappingMap[getFieldKeyFromField({ nodeId: selectedNode.id, fieldKey })])}
       getActiveLabel={(fieldKey) =>
         getActiveFieldLabel({
           mapping: mappingMap[getFieldKeyFromField({ nodeId: selectedNode.id, fieldKey })],
           nodeMap,
-          globalGroupMap,
         })
       }
       getBasicLabel={(fieldKey) => fieldKey}
