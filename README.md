@@ -1,54 +1,154 @@
-# React + TypeScript + Vite
+# Form Field Mapping Challenge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a coding challenge implementation for Avantos. It demonstrates a React application for visualizing and manipulating directed acyclic graphs (DAGs) of forms, allowing users to establish prefill mappings between form fields.
 
-Currently, two official plugins are available:
+## Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This application enables users to:
 
-## Expanding the ESLint configuration
+- View a directed acyclic graph (DAG) of forms
+- Configure how form fields from upstream forms can prefill fields in downstream forms
+- Select from multiple data sources for field mapping:
+  - Direct predecessor form fields
+  - Transitive predecessor form fields
+  - Global data properties
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Interactive graph visualization with node and edge display
+- Drawer interface for editing node properties and field mappings
+- Comprehensive field mapping between forms
+- Support for traversing the form DAG to find available source fields
+- Dark mode UI with HeroUI components
+- Responsive layout
+
+## Tech Stack
+
+- **Framework:** React 19 with TypeScript
+- **Build Tool:** Vite
+- **Styling:** TailwindCSS with HeroUI components
+- **Graph Visualization:** XYFlow (ReactFlow)
+- **State Management:** React Context API
+- **Data Fetching:** TanStack Query (React Query)
+- **HTTP Client:** Axios
+- **Testing:** Vitest, React Testing Library
+- **Linting:** ESLint
+- **Formatting:** Prettier
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. Create a `.env` file in the root directory with:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
 ```
+VITE_SERVER_URL=your_api_url_here
+```
+
+### Development
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+### Testing
+
+Run tests with:
+
+```bash
+npm test
+```
+
+## Project Structure
+
+```
+src/
+├── api/             # API communication layer
+├── components/      # Reusable UI components
+│   ├── form/        # Form-related components
+│   ├── graph/       # Graph visualization components
+│   └── loader/      # Loading indicators
+├── contexts/        # React contexts for state management
+├── hooks/           # Custom React hooks
+├── layouts/         # Page layout components
+├── pages/           # Top-level page components
+├── test/            # Test utilities and setup
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
+```
+
+## Key Components
+
+### Graph Canvas
+
+The main visualization component that renders the interactive graph using ReactFlow. Nodes can be clicked to open a drawer for editing.
+
+### Graph Drawer
+
+A slide-in panel that allows editing of node properties and creating field mappings between nodes.
+
+### Form Components
+
+Reusable form components for displaying and selecting fields, with support for both basic and active (mapped) states.
+
+## Architecture
+
+The application uses React Context for state management with the `GraphDrawerContext` providing the central state for the graph editor. The main workflow allows users to:
+
+1. View a graph of connected nodes
+2. Click on a node to open the drawer
+3. Select fields to map
+4. Choose target fields from global or predecessor nodes
+5. Create and manage mappings between fields
+
+## Extending with New Data Sources
+
+This application is designed to be easily extended with new data sources for field mapping. To add a new data source:
+
+1. Ensure your data source conforms to the `GraphNode` type structure:
+
+   ```typescript
+   type GraphNode = {
+     id: string
+     title: string
+     fields: string[]
+     isGlobal: boolean
+     predecessorIds?: string[]
+     position?: NodePosition
+   }
+   ```
+
+2. Add your new data source in the context file alongside existing nodes and globalNodes:
+
+   ```typescript
+   const nodeMap = getNodeMap([...nodes, ...globalNodes, ...newDataSource])
+   ```
+
+3. The application will automatically incorporate your new data source into the available mapping options without requiring changes to the core mapping logic.
+
+## Development Guidelines
+
+- Follow the established component structure
+- Add tests for new components
+- Use the existing context for state management
+- Follow the TypeScript types for consistency

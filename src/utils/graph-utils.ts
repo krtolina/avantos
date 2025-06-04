@@ -7,7 +7,7 @@ import type {
   GraphNode,
   MappingMap,
   NodeMap,
-} from '../types/graph-drawer'
+} from '../types/graph'
 
 // -----------------------------------------------------------
 

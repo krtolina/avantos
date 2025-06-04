@@ -1,4 +1,4 @@
-import type { FormFieldProps } from '../../types/graph-drawer'
+import type { FormFieldProps } from '../../types/graph'
 import FormItemActive from './form-item-active'
 import FormItemBasic from './form-item-basic'
 

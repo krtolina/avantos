@@ -1,7 +1,7 @@
 import { createContext, useState, useMemo, useCallback } from 'react'
 import { getCanvasNodes, getCanvasEdges, getNodeMap } from '../utils/graph-utils'
 import { useReadGraphNodes, useReadGlobalNodes, useReadGraphEdges } from '../api/blueprint-graph'
-import type { DrawerFormField, DrawerFormMapping, GraphNode, GraphDrawerContextType } from '../types/graph-drawer'
+import type { DrawerFormField, DrawerFormMapping, GraphNode, GraphDrawerContextType } from '../types/graph'
 
 type Props = {
   children: React.ReactNode

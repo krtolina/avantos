@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { axiosInstance } from '../utils/axios'
 import type { BlueprintGraph } from '../types/blueprint-graph'
-import type { GraphNode } from '../types/graph-drawer'
+import type { GraphNode } from '../types/graph'
 import { selectGraphNodes } from '../utils/graph-utils'
 
 // ---------------------------------------------------------

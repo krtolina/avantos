@@ -7,7 +7,7 @@ import {
   getNodeMap,
   getMappingMap,
 } from '../graph-utils'
-import type { DrawerFormField, DrawerFormMapping, GraphNode, NodeMap } from '../../types/graph-drawer'
+import type { DrawerFormField, DrawerFormMapping, GraphNode, NodeMap } from '../../types/graph'
 import type { BlueprintEdge } from '../../types/blueprint-graph'
 
 describe('graph-utils', () => {

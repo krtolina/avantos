@@ -1,6 +1,6 @@
 import { Accordion, AccordionItem } from '@heroui/react'
 import FormItemBasic from './form-item-basic'
-import type { FormTargetProps } from '../../types/graph-drawer'
+import type { FormTargetProps } from '../../types/graph'
 
 const FormTargets = ({
   nodeIds,
