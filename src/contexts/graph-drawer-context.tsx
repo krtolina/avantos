@@ -5,8 +5,9 @@ import {
   getPredecessorsMap,
   getCanvasNodesFromBlueprintGraph,
   getCanvasEdgesFromBlueprintGraph,
+  getGlobalGroupMap,
 } from '../utils/graph-utils'
-import { useReadBlueprintGraph } from '../api/blueprint-graph'
+import { useReadBlueprintGraph, useReadGlobalGroups } from '../api/blueprint-graph'
 import type { BlueprintNode } from '../types/blueprint-graph'
 import type { DrawerFormField, DrawerFormMapping, GraphDrawerContextType } from '../types/graph-drawer'
 
@@ -17,17 +18,19 @@ type Props = {
 const GraphDrawerContext = createContext<GraphDrawerContextType | null>(null)
 
 const GraphDrawerProvider = ({ children }: Props) => {
-  const { data, isLoading } = useReadBlueprintGraph({
+  const { data: graph, isLoading: isLoadingGraph } = useReadBlueprintGraph({
     tenantId: 'MOCK',
     actionBlueprintId: 'MOCK',
   })
 
+  const { data: globalGroups, isLoading: isLoadingGlobalGroups } = useReadGlobalGroups()
+
   const canvas = useMemo(() => {
-    if (!data) return
-    const canvasNodes = getCanvasNodesFromBlueprintGraph(data)
-    const canvasEdges = getCanvasEdgesFromBlueprintGraph(data)
+    if (!graph) return
+    const canvasNodes = getCanvasNodesFromBlueprintGraph(graph)
+    const canvasEdges = getCanvasEdgesFromBlueprintGraph(graph)
     return { canvasNodes, canvasEdges }
-  }, [data])
+  }, [graph])
 
   const [selectedNode, setSelectedNode] = useState<BlueprintNode>()
   const [selectedField, setSelectedField] = useState<DrawerFormField>()
@@ -35,12 +38,13 @@ const GraphDrawerProvider = ({ children }: Props) => {
   const [mappings, setMappings] = useState<DrawerFormMapping[]>([])
 
   const utilityMaps = useMemo(() => {
-    if (!data) return
-    const nodeMap = getNodeMap(data)
-    const formMap = getFormMap(data)
-    const predecessorsMap = getPredecessorsMap(data)
-    return { nodeMap, formMap, predecessorsMap }
-  }, [data])
+    if (!graph || !globalGroups) return undefined
+    const nodeMap = getNodeMap(graph)
+    const formMap = getFormMap(graph)
+    const predecessorsMap = getPredecessorsMap(graph)
+    const globalGroupMap = getGlobalGroupMap(globalGroups)
+    return { nodeMap, formMap, predecessorsMap, globalGroupMap }
+  }, [graph, globalGroups])
 
   const handleOpenDrawer = useCallback(
     (id: string) => {
@@ -87,7 +91,7 @@ const GraphDrawerProvider = ({ children }: Props) => {
   return (
     <GraphDrawerContext.Provider
       value={{
-        isLoading,
+        isLoading: isLoadingGraph || isLoadingGlobalGroups,
         selectedNode,
         setSelectedNode,
         selectedField,
@@ -96,9 +100,11 @@ const GraphDrawerProvider = ({ children }: Props) => {
         setSelectedMapping,
         mappings,
         setMappings,
+        globalGroups,
         nodeMap: utilityMaps ? utilityMaps.nodeMap : undefined,
         formMap: utilityMaps ? utilityMaps.formMap : undefined,
         predecessorsMap: utilityMaps ? utilityMaps.predecessorsMap : undefined,
+        globalGroupMap: utilityMaps ? utilityMaps.globalGroupMap : undefined,
         canvasNodes: canvas ? canvas.canvasNodes : undefined,
         canvasEdges: canvas ? canvas.canvasEdges : undefined,
         handleOpenDrawer,
