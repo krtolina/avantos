@@ -4,12 +4,9 @@ import type { BlueprintGraph } from '../types/blueprint-graph'
 import type { GraphNode } from '../types/graph-drawer'
 import { selectGraphNodes } from '../utils/graph-utils'
 
-export type UseReadGraphNodesParams = {
-  tenantId: string
-  actionBlueprintId: string
-}
+// ---------------------------------------------------------
 
-export type UseReadGraphEdgesParams = {
+export type UseReadGraphNodesParams = {
   tenantId: string
   actionBlueprintId: string
 }
@@ -25,6 +22,13 @@ export const useReadGraphNodes = (params: UseReadGraphNodesParams) => {
   })
 }
 
+// ---------------------------------------------------------
+
+export type UseReadGraphEdgesParams = {
+  tenantId: string
+  actionBlueprintId: string
+}
+
 export const useReadGraphEdges = (params: UseReadGraphEdgesParams) => {
   const { tenantId, actionBlueprintId } = params
 
@@ -35,6 +39,8 @@ export const useReadGraphEdges = (params: UseReadGraphEdgesParams) => {
     select: (data) => data.edges,
   })
 }
+
+// ---------------------------------------------------------
 
 export const useReadGlobalNodes = () => {
   return useQuery({
