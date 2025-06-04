@@ -67,6 +67,8 @@ Start the development server:
 npm run dev
 ```
 
+By default, the app will be available at http://localhost:5173.
+
 ### Building for Production
 
 ```bash
